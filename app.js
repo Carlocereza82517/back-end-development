@@ -9,16 +9,19 @@ app.use(express.json());
 
 // Using POST METHOD. Listens for endpoint "/save" then runs a function that creates a user with email and name.
 app.post('/save', async (req, res) => {
-    const { email, name } = req.body;
+    const { email , name } = req.body;
     const user = await prisma.user.create({
         data: {
             email,
             name,
         },
     });
+
+// Simple comment here
     res.json({ 
         user,
-        message : "User created successfully." });
+        message: 'User created successfully.'
+     });
 });
 
 // USING GET METHOD. Listens for endpoint "/user" then runs a function that retrieves user data atleast one or none.
@@ -38,9 +41,70 @@ app.post('/user-one', async (req, res) => {
     }); // Find a single using filter method like where.
     res.json({ userOne });
 });
+//USING PUT METHOD. Updating an account using account id then returns old and new
+app.put("/user-one/:id", async (req, res) =>{
+    const { email, name } = req.body;
+    const id = req.params.id;
+
+    const oldAccount = await prisma.user.findFirst({
+        where: {
+            id: Number(id),
+        },
+    });
+
+    const newAccount = await prisma.user.update({
+        where: {
+            id: Number(id),
+        },
+        data: {
+            email: email,
+        },
+    });
+    res.json({oldEmail : oldAccount.email, newEmail: newAccount.email});
+});
+
+//USING DELETE METHOD. Returns data containing string Hello World.
+app.delete("/delete/:id", async (req, res) => {
+    const id = req.params.id;
+
+    const oldAccount = await prisma.user.findFirst({
+        where: {
+            id: Number(id),
+        },
+    });
+
+    const deleteObject = await prisma.user.delete({
+        where: {
+            id: Number(id),
+        },
+    });
+    res.json({
+        account: oldAccount,
+        message: deleteObject
+        ? "Deleted successfully."
+        : "Error! No entry to delete.",
+    });
+
+});
+
+//USING DELETE METHOD. Returns data containing string Hello World.
+app.delete("/delete-many", async (req, res) => {
+    const id = req.params.id;
+
+    const oldAccount = await prisma.user.findMany();
+
+    const deleteObject = await prisma.user.deleteMany();
+    res.json({
+        account: oldAccount,
+        message: deleteObject
+        ? "Deleted successfully."
+        : "Error! No entry to delete.",
+    });
+
+});
 
 // USING POST METHOD. Returns data containing string Hello World.
-app.post('/helloworld', async (req, res) => {
+app.get('/helloworld', async (req, res) => {
     res.json({ data: 'Hello World' });
 });
 
